@@ -43,7 +43,11 @@ module ActiveResourceResponse
 
           def find(*arguments)
             result = find_without_http_response(*arguments)
-            self.wrap_result(result)
+            result.instance_variable_set(:@http_response, connection.http_response)
+            result.singleton_class.send(:define_method, self.http_response_method) do
+              @http_response
+            end
+            result
           end
         end unless methods.map(&:to_sym).include?(:find_without_http_response)
       end
@@ -56,16 +60,6 @@ module ActiveResourceResponse
           undef :http_response_method
           undef :http_response_method=
         end
-      end
-
-      def wrap_result(result)
-
-        result = SimpleDelegator.new(result)
-        result.instance_variable_set(:@http_response, connection.http_response)
-        result.singleton_class.send(:define_method, self.http_response_method) do
-          @http_response
-        end
-        result
       end
     end
   end
