@@ -152,4 +152,11 @@ class ActiveResourceResponseTest < Test::Unit::TestCase
      assert region.respond_to?(ActiveResourceResponseBase.http_response_method)
   end
 
+  def test_active_model_naming_methods
+    # rails form helpers expect models to respond to the model_name class method
+    assert Country.respond_to?(:model_name)
+    country = Country.find(1)
+    assert country.class.respond_to?(:model_name)
+  end
+
 end
